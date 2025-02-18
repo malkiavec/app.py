@@ -1,2 +1,13 @@
 streamlit
 pandas
+scikit-learn
+matlplotlib
+networkx
+random
+requests
+time
+xgboost
+tensorflow
+sequential
+LSTM
+lottery_data.csv
