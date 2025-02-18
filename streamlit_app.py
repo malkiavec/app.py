@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import networkx as nx
 import random
+import sklearn
 import requests
 import time
 from xgboost import XGBClassifier
