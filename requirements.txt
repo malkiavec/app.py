@@ -6,4 +6,5 @@ tensorflow
 matplotlib 
 seaborn 
 networkx 
-pandas numpy
+pandas 
+numpy
