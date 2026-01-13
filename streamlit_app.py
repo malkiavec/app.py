@@ -1,6 +1,8 @@
+pip install streamlit pyngrok xgboost tensorflow matplotlib seaborn networkx pandas numpy 
+"""
 import streamlit as st
-import pandas as pd
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import networkx as nx
