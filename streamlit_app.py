@@ -7,29 +7,57 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import networkx as nx
 import random
+import sklearn
+import requests
+import time
 from xgboost import XGBClassifier
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
 
-# Load lottery dataset
+# API Endpoint
+API_URL = "https://data.ny.gov/resource/6nbc-h7bj.json"
+CSV_FILE = "lottery_data.csv"
+
+# Function to fetch data from API and store in CSV
 @st.cache_data
-def load_data():
-    return pd.read_csv("lottery_data.csv")
+def fetch_and_store_data():
+    try:
+        response = requests.get(API_URL)
+        data = response.json()
+        df = pd.DataFrame(data)
 
-df = load_data()
+        # Extract relevant columns (modify based on API response structure)
+        df = df[['draw_date', 'winning_numbers']]
+        df['draw_date'] = pd.to_datetime(df['draw_date'])
+        df = df.sort_values(by='draw_date', ascending=True)
 
-# Sidebar: Mutation adjustment
+        # Split winning numbers into separate columns
+        df[['num1', 'num2', 'num3', 'num4', 'num5', 'num6']] = df['winning_numbers'].str.split(" ", expand=True).astype(int)
+
+        # Save to CSV
+        df.to_csv(CSV_FILE, index=False)
+        return df
+
+    except Exception as e:
+        st.error(f"Error fetching data: {e}")
+        return pd.DataFrame()
+
+# Load data
+df = fetch_and_store_data()
+
+# Sidebar settings
 st.sidebar.header("Mutation Adjustment")
 mutation_level = st.sidebar.slider("Mutation Strength", 0.0, 1.0, 0.5)
 
-# Sidebar: XGBoost filtering
 st.sidebar.subheader("XGBoost Filtering")
 use_xgboost = st.sidebar.checkbox("Enable XGBoost Filtering", True)
 
 # Train XGBoost classifier
 def train_xgboost(df):
-    X = df.drop(columns=["Valid"])
-    y = df["Valid"]
+    X = df[['num1', 'num2', 'num3', 'num4', 'num5', 'num6']]
+    X['Valid'] = 1  # Assume all past draws are valid
+    y = X.pop('Valid')
+
     model = XGBClassifier()
     model.fit(X, y)
     return model
@@ -91,7 +119,3 @@ sns.heatmap(transition_matrix, cmap="coolwarm", linewidths=0.5)
 st.pyplot(plt)
 
 st.write("Mutation optimization completed!")
-"""
-
-with open("app.py", "w") as f:
-    f.write(code)
